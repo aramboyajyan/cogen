@@ -1,0 +1,31 @@
+{
+
+  "dev_output": false,
+
+  "paths_to_templates": [
+    "/path/to/cogen/templates",
+  ],
+
+  "filenames_to_delete": [
+    "cogen.json"
+  ],
+
+  "exclude_files_from_editing": [
+    "md", "txt", "ico", "jpg", "jpeg", "png", "gif", "tiff", "font", "eot", "zip", "gz", "tar", "pdf", "DS_Store"
+  ],
+
+  "exclude_folders_from_renaming": [
+    ".git"
+  ],
+
+  "github": {
+    "username": "your_username",
+    "email": "email@address.com"
+  },
+
+  "bitbucket": {
+    "username": "your_username",
+    "email": "email@address.com"
+  }
+  
+}
