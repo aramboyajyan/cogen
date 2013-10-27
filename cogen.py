@@ -1,32 +1,37 @@
 #!/usr/bin/env python
 import os, sys, json, distutils.core
 
+# Get user settings.
 config = json.load(open(os.path.join(os.path.dirname(__file__), 'configuration.json')))
 
-text_space = '--> '
-text_help = 'Help text'
-text_list = 'List text'
-text_about = 'About text'
-text_version = 'Cogen version: 1.0'
-text_default = 'Command not found. Type "cogen -h" to see help.'
-text_invalid_path = 'Template does not exist or "cogen.json" file is missing.'
-text_replacing = 'Starting to replace value: '
-text_path_not_found = 'Warning: path "%s" does not contain cogen.json file.'
-text_cogen_not_found = 'Warning: cogen.json file does not exist in "%s"'
-text_general_not_found = 'General variable "%s" not found.'
-text_generated = 'Template "%s" successfully generated.'
+# Define help text displayed for different flags.
+text_space              = '--> '
+text_help               = 'Help text'
+text_list               = 'List text'
+text_about              = 'About text'
+text_version            = 'Cogen version: 1.0'
+text_default            = 'Command not found. Type "cogen -h" to see help.'
+text_invalid_path       = 'Template does not exist or "cogen.json" file is missing.'
+text_replacing          = 'Starting to replace value: '
+text_path_not_found     = 'Warning: path "%s" does not contain cogen.json file.'
+text_cogen_not_found    = 'Warning: cogen.json file does not exist in "%s"'
+text_general_not_found  = 'General variable "%s" not found.'
+text_generated          = 'Template "%s" successfully generated.'
 
-args_out = ['-o', '--o', '--output']
-args_help = ['-h', '--h', '--help']
-args_list = ['-l', '--l', '--list']
-args_check = ['-c', '--c', '--check']
+# Argument dictionaries.
+args_out     = ['-o', '--o', '--output']
+args_help    = ['-h', '--h', '--help']
+args_list    = ['-l', '--l', '--list']
+args_check   = ['-c', '--c', '--check']
 args_version = ['-v', '--v', '--version']
 
-argument = sys.argv[1]
 
+# Main function for displaying the output. For now it just spaces out all text
+# with dashes/arrow so it's easier to read and see on the screen.
 def output(text):
   print text_space + text
 
+# Replace content of the file.
 def replace_file_contents(destination, variable, value):
   for path, dirs, files in os.walk(destination):
     for filename in files:
@@ -39,12 +44,17 @@ def replace_file_contents(destination, variable, value):
       file_opened.write(file_content)
       file_opened.close()
 
+# Rename files.
 def replace_file_names(destination, variable, value):
   for path, dirs, files in os.walk(destination):
     for filename in files:
       if variable['pattern'] in filename:
         os.rename(path + '/' + filename, path + '/' + filename.replace(variable['pattern'], value))
 
+# Remove the first argument, which is always "cogen".
+argument = sys.argv[1]
+
+# Global flags.
 if argument[0] == '-':
   if argument in args_help:
     output(text_help)
@@ -54,6 +64,8 @@ if argument[0] == '-':
     output(text_list)
   else:
     output(text_general_not_found)
+
+# Template generation.
 else:
   for path_to_template in config.get('paths_to_templates'):
     if not os.path.exists(path_to_template + '/' + argument):
