@@ -3,6 +3,7 @@ import os, sys, json, distutils.core
 
 config = json.load(open(os.path.join(os.path.dirname(__file__), 'configuration.json')))
 
+text_space = '--> '
 text_help = 'Help text'
 text_list = 'List text'
 text_about = 'About text'
@@ -22,6 +23,9 @@ args_check = ['-c', '--c', '--check']
 args_version = ['-v', '--v', '--version']
 
 argument = sys.argv[1]
+
+def output(text):
+  print text_space + text
 
 def replace_file_contents(destination, variable, value):
   for path, dirs, files in os.walk(destination):
@@ -43,19 +47,19 @@ def replace_file_names(destination, variable, value):
 
 if argument[0] == '-':
   if argument in args_help:
-    print text_help
+    output(text_help)
   elif argument in args_version:
-    print text_version
+    output(text_version)
   elif argument in args_list:
-    print text_list
+    output(text_list)
   else:
-    print text_general_not_found
+    output(text_general_not_found)
 else:
   for path_to_template in config.get('paths_to_templates'):
     if not os.path.exists(path_to_template + '/' + argument):
-      print text_template_not_found % path_to_template
+      output(text_template_not_found % path_to_template)
     elif not os.path.isfile(path_to_template + '/cogen.json'):
-      print text_cogen_not_found % path_to_template
+      output(text_cogen_not_found % path_to_template)
     else:
       project_config = json.load(open(path_to_template + '/' + argument + '/cogen.json'))
       output_directory_name = raw_input('Enter folder name')
@@ -72,4 +76,4 @@ else:
             replace_file_contents(destination, variable, value)
           elif variable['type'] == 'rename':
             replace_file_names(destination, variable, value)
-      print text_generated % project_config['name']
+      output(text_generated % project_config['name'])
