@@ -3,7 +3,7 @@
   "dev_output": false,
 
   "paths_to_templates": [
-    "/path/to/cogen/templates",
+    "/path/to/your/templates"
   ],
 
   "filenames_to_delete": [
