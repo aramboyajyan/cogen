@@ -25,6 +25,9 @@ args_list    = ['-l', '--l', '--list']
 args_check   = ['-c', '--c', '--check']
 args_version = ['-v', '--v', '--version']
 
+# Define filetypes which will be skipped from replacing. Note: this will not
+# affect changing the filenames.
+files_to_skip   = config.get('exclude_files_from_editing')
 
 # Main function for displaying the output. For now it just spaces out all text
 # with dashes/arrow so it's easier to read and see on the screen.
@@ -36,13 +39,17 @@ def replace_file_contents(destination, variable, value):
   for path, dirs, files in os.walk(destination):
     for filename in files:
       file_name_temp, file_extension = os.path.splitext(filename)
-      file_content = ''
-      for line in open(path + '/' + filename, 'r+'):
-        line_utf = line.encode('utf-8')
-        file_content += line_utf.replace(variable['pattern'], value)
-      file_opened = open(path + '/' + filename, 'w+')
-      file_opened.write(file_content)
-      file_opened.close()
+      # Note: file_extension will have the dot in front of the extension name,
+      # so when comparing we have to use the string starting from the second
+      # character.
+      if file_extension[1:] not in files_to_skip:
+        file_content = ''
+        for line in open(path + '/' + filename, 'r+'):
+          line_utf = line.encode('utf-8')
+          file_content += line_utf.replace(variable['pattern'], value)
+        file_opened = open(path + '/' + filename, 'w+')
+        file_opened.write(file_content)
+        file_opened.close()
 
 # Rename files.
 def replace_file_names(destination, variable, value):
