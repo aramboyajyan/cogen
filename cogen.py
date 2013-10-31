@@ -17,6 +17,7 @@ text_path_not_found     = 'Warning: path "%s" does not contain cogen.json file.'
 text_cogen_not_found    = 'Warning: cogen.json file does not exist in "%s"'
 text_general_not_found  = 'General variable "%s" not found.'
 text_generated          = 'Template "%s" successfully generated.'
+text_enter_folder_name  = 'Enter the new folder name; leave blank for default (%s): '
 
 # Argument dictionaries.
 args_out     = ['-o', '--o', '--output']
@@ -81,7 +82,7 @@ else:
       output(text_cogen_not_found % path_to_template)
     else:
       project_config = json.load(open(path_to_template + '/' + argument + '/cogen.json'))
-      output_directory_name = raw_input('Enter folder name')
+      output_directory_name = raw_input(text_enter_folder_name % argument)
       src = path_to_template + '/' + argument
       destination = os.getcwd() + '/' + argument
       distutils.dir_util.copy_tree(src, destination)
