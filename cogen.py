@@ -18,6 +18,7 @@ text_cogen_not_found    = 'Warning: cogen.json file does not exist in "%s"'
 text_general_not_found  = 'General variable "%s" not found.'
 text_generated          = 'Template "%s" successfully generated.'
 text_enter_folder_name  = 'Enter the new folder name; leave blank for default (%s): '
+text_dev_processing     = 'Processing "%s"'
 
 # Argument dictionaries.
 args_out     = ['-o', '--o', '--output']
@@ -30,6 +31,9 @@ args_version = ['-v', '--v', '--version']
 # affect changing the filenames.
 files_to_skip   = config.get('exclude_files_from_editing')
 
+# Check if Cogen should display developer output during template generation.
+show_dev_output = config.get('show_dev_output')
+
 # Main function for displaying the output. For now it just spaces out all text
 # with dashes/arrow so it's easier to read and see on the screen.
 def output(text):
@@ -39,6 +43,11 @@ def output(text):
 def replace_file_contents(destination, variable, value):
   for path, dirs, files in os.walk(destination):
     for filename in files:
+      # Show developers the filename being processed.
+      if show_dev_output:
+        output(text_dev_processing % filename)
+      # Get file extension and skip if this matches the extensions we should
+      # avoid.
       file_name_temp, file_extension = os.path.splitext(filename)
       # Note: file_extension will have the dot in front of the extension name,
       # so when comparing we have to use the string starting from the second
@@ -88,6 +97,9 @@ else:
       distutils.dir_util.copy_tree(src, destination)
       if project_config.get('variables'):
         for variable in project_config['variables']:
+          # Show developers the name of variable we are replacing currently.
+          if show_dev_output:
+            output(text_dev_replacing % value)
           value = raw_input(variable['name'] + ': ')
           if variable['type'] == 'all':
             replace_file_names(destination, variable, value)
