@@ -36,6 +36,8 @@ exclude_folders_from_renaming = config['exclude_folders_from_renaming']
 folders_to_ignore = config['folders_to_ignore']
 # Folders that should be removed once the template is generated.
 folders_to_delete = config['folders_to_delete']
+# Files that should be removed once the template is generated.
+filenames_to_delete = config['filenames_to_delete']
 # Folders that will be completely excluded from all checks.
 folders_to_ignore = config['folders_to_ignore']
 
@@ -118,6 +120,23 @@ else:
       output(text_cogen_not_found % path_to_template)
     else:
       project_config = json.load(open(path_to_template + '/' + argument + '/cogen.json'))
+      if 'overrides' in project_config:
+        if 'exclude_folders_from_renaming' in project_config['overrides']:
+          exclude_folders_from_renaming = project_config['overrides']['exclude_folders_from_renaming']
+        if 'exclude_files_from_editing' in project_config['overrides']:
+          files_to_skip = project_config['overrides']['exclude_files_from_editing']
+        if 'dev_output' in project_config['overrides']:
+          show_dev_output = project_config['overrides']['dev_output']
+        if 'filenames_to_delete' in project_config['overrides']:
+          filenames_to_delete = project_config['overrides']['filenames_to_delete']
+        if 'folders_to_delete' in project_config['overrides']:
+          folders_to_delete = project_config['overrides']['folders_to_delete']
+        if 'folders_to_ignore' in project_config['overrides']:
+          folders_to_ignore = project_config['overrides']['folders_to_ignore']
+        if 'github' in project_config['overrides']:
+          github = project_config['overrides']['github']
+        if 'bitbucket' in project_config['overrides']:
+          bitbucket = project_config['overrides']['bitbucket']
       output_directory_name = raw_input(text_enter_folder_name % argument)
       src = path_to_template + '/' + argument
       destination = os.getcwd() + '/' + argument
