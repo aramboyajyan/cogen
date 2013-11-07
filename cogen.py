@@ -12,13 +12,14 @@ text_about              = 'About text'
 text_version            = 'Cogen version: 1.0'
 text_default            = 'Command not found. Type "cogen -h" to see help.'
 text_invalid_path       = 'Template does not exist or "cogen.json" file is missing.'
-text_replacing          = 'Starting to replace value: '
 text_path_not_found     = 'Warning: path "%s" does not contain cogen.json file.'
 text_cogen_not_found    = 'Warning: cogen.json file does not exist in "%s"'
 text_general_not_found  = 'General variable "%s" not found.'
+text_template_not_found = 'Template not found: "%s"'
 text_generated          = 'Template "%s" successfully generated.'
-text_enter_folder_name  = 'Enter the new folder name; leave blank for default (%s): '
+text_dev_replacing      = 'Starting to replace value: '
 text_dev_processing     = 'Processing "%s"'
+text_enter_folder_name  = 'Enter the new folder name; leave blank for default (%s): '
 
 # Argument dictionaries.
 args_out     = ['-o', '--o', '--output']
@@ -32,12 +33,10 @@ args_version = ['-v', '--v', '--version']
 files_to_skip   = config['exclude_files_from_editing']
 # Folders which will be skipped from replacing checks completely.
 exclude_folders_from_renaming = config['exclude_folders_from_renaming']
-# Folders that will be completely excluded from all checks.
-folders_to_ignore = config['folders_to_ignore']
-# Folders that should be removed once the template is generated.
-folders_to_delete = config['folders_to_delete']
 # Files that should be removed once the template is generated.
 filenames_to_delete = config['filenames_to_delete']
+# Folders that should be removed once the template is generated.
+folders_to_delete = config['folders_to_delete']
 # Folders that will be completely excluded from all checks.
 folders_to_ignore = config['folders_to_ignore']
 
@@ -87,12 +86,19 @@ def rename_folders(destination, variable, value):
       if dir not in folders_to_ignore and dir not in exclude_folders_from_renaming and variable['pattern'] in dir:
         os.rename(path + '/' + dir, path + '/' + dir.replace(variable['pattern'], value))
 
+# Remove unnecessary files from generated template.
 def cleanup(destination):
   for path, dirs, files in os.walk(destination, True):
+    # The default os.walk() function will get us the complete tree of files
+    # and directories that are on a certain path. In order to exclude the
+    # necessary directories, we need to rebuild the dirs dictionary manually
+    # and include only folders that are not in the exclude list.
     dirs[:] = [d for d in dirs if not d in folders_to_ignore]
+    # Cleanup files.
     for filename in files:
       if filename in filenames_to_delete:
         os.remove(path + '/' + filename)
+    # Cleanup folders.
     for dir in dirs:
       if dir in folders_to_delete:
         shutil.rmtree(path + '/' + dir)
@@ -119,7 +125,9 @@ else:
     elif not os.path.isfile(path_to_template + '/cogen.json'):
       output(text_cogen_not_found % path_to_template)
     else:
+      # Load configuration.
       project_config = json.load(open(path_to_template + '/' + argument + '/cogen.json'))
+      # Check if the project overrides some of the default settings.
       if 'overrides' in project_config:
         if 'exclude_folders_from_renaming' in project_config['overrides']:
           exclude_folders_from_renaming = project_config['overrides']['exclude_folders_from_renaming']
@@ -137,10 +145,13 @@ else:
           github = project_config['overrides']['github']
         if 'bitbucket' in project_config['overrides']:
           bitbucket = project_config['overrides']['bitbucket']
+      # Ask the output directory.
       output_directory_name = raw_input(text_enter_folder_name % argument)
+      # Start copying all files.
       src = path_to_template + '/' + argument
       destination = os.getcwd() + '/' + argument
       distutils.dir_util.copy_tree(src, destination)
+      # Remove all unnecessary files from the newly generated template.
       cleanup(destination)
       if 'variables' in project_config:
         for variable in project_config['variables']:
