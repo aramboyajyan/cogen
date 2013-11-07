@@ -18,6 +18,8 @@
     ".git"
   ],
 
+  "folders_to_ignore": [],
+
   "github": {
     "username": "your_username",
     "email": "email@address.com"

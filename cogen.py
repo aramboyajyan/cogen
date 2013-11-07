@@ -32,6 +32,12 @@ args_version = ['-v', '--v', '--version']
 files_to_skip   = config['exclude_files_from_editing']
 # Folders which will be skipped from replacing checks completely.
 exclude_folders_from_renaming = config['exclude_folders_from_renaming']
+# Folders that will be completely excluded from all checks.
+folders_to_ignore = config['folders_to_ignore']
+# Folders that should be removed once the template is generated.
+folders_to_delete = config['folders_to_delete']
+# Folders that will be completely excluded from all checks.
+folders_to_ignore = config['folders_to_ignore']
 
 # Check if Cogen should display developer output during template generation.
 show_dev_output = config['show_dev_output']
@@ -44,37 +50,39 @@ def output(text):
 # Replace content of the file.
 def replace_file_contents(destination, variable, value):
   for path, dirs, files in os.walk(destination):
-    for filename in files:
-      # Show developers the filename being processed.
-      if show_dev_output:
-        output(text_dev_processing % filename)
-      # Get file extension and skip if this matches the extensions we should
-      # avoid.
-      file_name_temp, file_extension = os.path.splitext(filename)
-      # Note: file_extension will have the dot in front of the extension name,
-      # so when comparing we have to use the string starting from the second
-      # character.
-      if file_extension[1:] not in files_to_skip:
-        file_content = ''
-        for line in open(path + '/' + filename, 'r+'):
-          line_utf = line.encode('utf-8')
-          file_content += line_utf.replace(variable['pattern'], value)
-        file_opened = open(path + '/' + filename, 'w+')
-        file_opened.write(file_content)
-        file_opened.close()
+    if path.split('/')[-1] not in folders_to_ignore:
+      for filename in files:
+        # Show developers the filename being processed.
+        if show_dev_output:
+          output(text_dev_processing % filename)
+        # Get file extension and skip if this matches the extensions we should
+        # avoid.
+        file_name_temp, file_extension = os.path.splitext(filename)
+        # Note: file_extension will have the dot in front of the extension name,
+        # so when comparing we have to use the string starting from the second
+        # character.
+        if file_extension[1:] not in files_to_skip:
+          file_content = ''
+          for line in open(path + '/' + filename, 'r+'):
+            line_utf = line.encode('utf-8')
+            file_content += line_utf.replace(variable['pattern'], value)
+          file_opened = open(path + '/' + filename, 'w+')
+          file_opened.write(file_content)
+          file_opened.close()
 
 # Rename files.
 def replace_file_names(destination, variable, value):
   for path, dirs, files in os.walk(destination):
     for filename in files:
-      if variable['pattern'] in filename:
-        os.rename(path + '/' + filename, path + '/' + filename.replace(variable['pattern'], value))
+      if path.split('/')[-1] not in folders_to_ignore:
+        if variable['pattern'] in filename:
+          os.rename(path + '/' + filename, path + '/' + filename.replace(variable['pattern'], value))
 
 # Rename folders.
 def rename_folders(destination, variable, value):
   for path, dirs, files in os.walk(destination):
     for dir in dirs:
-      if dir not in exclude_folders_from_renaming and variable['pattern'] in dir:
+      if dir not in folders_to_ignore and dir not in exclude_folders_from_renaming and variable['pattern'] in dir:
         os.rename(path + '/' + dir, path + '/' + dir.replace(variable['pattern'], value))
 
 # Remove the first argument, which is always "cogen".
