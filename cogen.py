@@ -20,6 +20,7 @@ text_generated          = 'Template "%s" successfully generated.'
 text_dev_replacing      = 'Starting to replace value: '
 text_dev_processing     = 'Processing "%s"'
 text_enter_folder_name  = 'Enter the new folder name; leave blank for default (%s): '
+text_project_init_done  = 'Project configuration file generated successfully.'
 
 # Argument dictionaries.
 args_out     = ['-o', '--o', '--output']
@@ -27,6 +28,7 @@ args_help    = ['-h', '--h', '--help']
 args_list    = ['-l', '--l', '--list']
 args_check   = ['-c', '--c', '--check']
 args_version = ['-v', '--v', '--version']
+args_init    = ['-i', '--i', '--init']
 
 # Define filetypes which will be skipped from replacing. Note: this will not
 # affect changing the filenames.
@@ -114,6 +116,13 @@ if argument[0] == '-':
     output(text_version)
   elif argument in args_list:
     output(text_list)
+  elif argument in args_init:
+    # Generate JSON project configuration file in the current working dir.
+    project_init_template = open(os.path.join(os.path.dirname(__file__), 'project-init.json'))
+    project_init = open('cogen.json', 'wb')
+    project_init.write(project_init_template.read())
+    project_init.close()
+    output(text_project_init_done)
   else:
     output(text_general_not_found)
 

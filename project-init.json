@@ -1,0 +1,12 @@
+{
+  "name": "Name of your project",
+  "variables": [
+    {
+      "name": "Sample variable",
+      "pattern": "{replacement_pattern}",
+      "regex": false,
+      "type": "all",
+    }
+  ],
+  "overrides": []
+}
