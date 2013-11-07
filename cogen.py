@@ -30,6 +30,8 @@ args_version = ['-v', '--v', '--version']
 # Define filetypes which will be skipped from replacing. Note: this will not
 # affect changing the filenames.
 files_to_skip   = config['exclude_files_from_editing']
+# Folders which will be skipped from replacing checks completely.
+exclude_folders_from_renaming = config['exclude_folders_from_renaming']
 
 # Check if Cogen should display developer output during template generation.
 show_dev_output = config['show_dev_output']
@@ -68,6 +70,13 @@ def replace_file_names(destination, variable, value):
       if variable['pattern'] in filename:
         os.rename(path + '/' + filename, path + '/' + filename.replace(variable['pattern'], value))
 
+# Rename folders.
+def rename_folders(destination, variable, value):
+  for path, dirs, files in os.walk(destination):
+    for dir in dirs:
+      if dir not in exclude_folders_from_renaming and variable['pattern'] in dir:
+        os.rename(path + '/' + dir, path + '/' + dir.replace(variable['pattern'], value))
+
 # Remove the first argument, which is always "cogen".
 argument = sys.argv[1]
 
@@ -101,11 +110,17 @@ else:
           if show_dev_output:
             output(text_dev_replacing % value)
           value = raw_input(variable['name'] + ': ')
+          # Replace all instances of the pattern: both in files and in the
+          # text in the files. Note: files ending in excluded files list will
+          # be skipped.
           if variable['type'] == 'all':
             replace_file_names(destination, variable, value)
             replace_file_contents(destination, variable, value)
+          # Replace all instances of the pattern IN the files.
           elif variable['type'] == 'replace':
             replace_file_contents(destination, variable, value)
+          # Replace all instances of the pattern in the file and folder names.
           elif variable['type'] == 'rename':
+            rename_folders(destination, variable, value)
             replace_file_names(destination, variable, value)
       output(text_generated % project_config['name'])
