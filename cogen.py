@@ -29,10 +29,10 @@ args_version = ['-v', '--v', '--version']
 
 # Define filetypes which will be skipped from replacing. Note: this will not
 # affect changing the filenames.
-files_to_skip   = config.get('exclude_files_from_editing')
+files_to_skip   = config['exclude_files_from_editing']
 
 # Check if Cogen should display developer output during template generation.
-show_dev_output = config.get('show_dev_output')
+show_dev_output = config['show_dev_output']
 
 # Main function for displaying the output. For now it just spaces out all text
 # with dashes/arrow so it's easier to read and see on the screen.
@@ -84,7 +84,7 @@ if argument[0] == '-':
 
 # Template generation.
 else:
-  for path_to_template in config.get('paths_to_templates'):
+  for path_to_template in config['paths_to_templates']:
     if not os.path.exists(path_to_template + '/' + argument):
       output(text_template_not_found % path_to_template)
     elif not os.path.isfile(path_to_template + '/cogen.json'):
@@ -95,7 +95,7 @@ else:
       src = path_to_template + '/' + argument
       destination = os.getcwd() + '/' + argument
       distutils.dir_util.copy_tree(src, destination)
-      if project_config.get('variables'):
+      if project_config['variables']:
         for variable in project_config['variables']:
           # Show developers the name of variable we are replacing currently.
           if show_dev_output:
