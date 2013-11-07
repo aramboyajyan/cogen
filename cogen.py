@@ -85,6 +85,16 @@ def rename_folders(destination, variable, value):
       if dir not in folders_to_ignore and dir not in exclude_folders_from_renaming and variable['pattern'] in dir:
         os.rename(path + '/' + dir, path + '/' + dir.replace(variable['pattern'], value))
 
+def cleanup(destination):
+  for path, dirs, files in os.walk(destination, True):
+    dirs[:] = [d for d in dirs if not d in folders_to_ignore]
+    for filename in files:
+      if filename in filenames_to_delete:
+        os.remove(path + '/' + filename)
+    for dir in dirs:
+      if dir in folders_to_delete:
+        shutil.rmtree(path + '/' + dir)
+
 # Remove the first argument, which is always "cogen".
 argument = sys.argv[1]
 
@@ -112,7 +122,8 @@ else:
       src = path_to_template + '/' + argument
       destination = os.getcwd() + '/' + argument
       distutils.dir_util.copy_tree(src, destination)
-      if project_config['variables']:
+      cleanup(destination)
+      if 'variables' in project_config:
         for variable in project_config['variables']:
           # Show developers the name of variable we are replacing currently.
           if show_dev_output:
