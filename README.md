@@ -20,7 +20,7 @@ Note: there are some tools that are similar up to certain extent (e.g. [Yeoman](
 
 ### Installation
 
-Coming soon. Planning to make it very straightforward with `[pip](https://pypi.python.org/pypi/pip)`.
+Coming soon. Planning to make it very straightforward with [pip](https://pypi.python.org/pypi/pip).
 
 ### Usage
 
